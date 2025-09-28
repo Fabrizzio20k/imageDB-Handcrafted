@@ -9,7 +9,7 @@ class FaissIndexFactory:
 
         Args:
             dim (int): Dimensión de los vectores.
-            index_type (str): Tipo de índice. 
+            index_type (str): Tipo de índice.
                               Opciones: "l2", "cosine", "hnsw", "lsh".
         """
         self.dim = dim
@@ -42,8 +42,8 @@ class FaissIndexFactory:
         ids = np.arange(len(self.metadata), len(self.metadata) + len(vectors))
         self.index.add_with_ids(vectors, ids)
 
-        for i, label in zip(ids, labels):
-            self.metadata[i] = label
+        for i, meta in zip(ids, labels):
+            self.metadata[i] = meta
 
     def search(self, queries: np.ndarray, k: int = 5):
         if self.index_type == "cosine":
@@ -57,9 +57,11 @@ class FaissIndexFactory:
             for idx, dist in zip(row_ids, row_dists):
                 if idx == -1:
                     continue
+                meta = self.metadata[idx]
                 row.append({
                     "id": int(idx),
-                    "clase": self.metadata[idx],
+                    "clase": meta["clase"],
+                    "path": meta["path"],
                     "distancia": float(dist)
                 })
             results.append(row)

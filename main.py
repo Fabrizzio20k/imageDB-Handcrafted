@@ -1,9 +1,10 @@
-from core.ImageSimilarityIndex import ImageSimilarityIndex, IndexType
+from core.ImageSimilarityIndex import ImageSimilarityIndex, IndexType, DescriptorType
 
 dataset_dir = "caltech-101"
 query_img = "caltech-101/airplanes/image_0001.jpg"
 
-index = ImageSimilarityIndex(dim=128, index_type=IndexType.HNSW)
+index = ImageSimilarityIndex(
+    index_type=IndexType.HNSW, descriptor=DescriptorType.FISHER)
 index.build_index(dataset_dir)
 
 results = index.search(query_img, k=5)
