@@ -7,6 +7,7 @@ from skimage.feature import local_binary_pattern
 from sklearn.cluster import KMeans
 from sklearn.mixture import GaussianMixture
 from config.FaissInit import FaissIndexFactory
+from utils.hog import HOG
 
 
 class IndexType(Enum):
@@ -43,7 +44,7 @@ class ImageSimilarityIndex:
         self.sift = cv2.SIFT_create() if descriptor in [DescriptorType.SIFT,
                                                         DescriptorType.BOW,
                                                         DescriptorType.FISHER] else None
-        self.hog = cv2.HOGDescriptor() if descriptor == DescriptorType.HOG else None
+        self.hog = HOG() if descriptor == DescriptorType.HOG else None
 
         self.bow_model = None
         self.gmm = None
@@ -59,7 +60,7 @@ class ImageSimilarityIndex:
         if self.descriptor_type == DescriptorType.SIFT:
             return 128
         elif self.descriptor_type == DescriptorType.HOG:
-            return self.hog.getDescriptorSize()
+            return self.hog.getDescriptorSize(128, 64)
         elif self.descriptor_type == DescriptorType.LBP:
             return 256
         elif self.descriptor_type == DescriptorType.BOW:
@@ -79,7 +80,7 @@ class ImageSimilarityIndex:
 
         elif self.descriptor_type == DescriptorType.HOG:
             gray = cv2.resize(gray, (64, 128))
-            hog_vec = self.hog.compute(gray)
+            hog_vec = self.hog.compute_hog(gray)
             return hog_vec.flatten().astype("float32")
 
         elif self.descriptor_type == DescriptorType.LBP:

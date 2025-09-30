@@ -4,7 +4,7 @@ dataset_dir = "caltech-101"
 query_img = "caltech-101/airplanes/image_0001.jpg"
 
 index = ImageSimilarityIndex(
-    index_type=IndexType.HNSW, descriptor=DescriptorType.SIFT)
+    index_type=IndexType.L2, descriptor=DescriptorType.HOG)
 index.build_index(dataset_dir)
 
 results = index.search(query_img, k=5)
