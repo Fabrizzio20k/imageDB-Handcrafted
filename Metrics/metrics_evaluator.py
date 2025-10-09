@@ -53,4 +53,6 @@ class MetricsEvaluator:
             
             if len(retrieved_items) >= 5:
                 top_5_classes = retrieved_items[:5]
-                majority_class =
+                majority_class = Counter(top_5_classes).most_common(1)[0][0]
+                accuracy = 1 if majority_class == true_class else 0
+                query_accuracy_list.append(accuracy)
