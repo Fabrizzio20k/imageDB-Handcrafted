@@ -1,7 +1,8 @@
+from pathlib import Path
 import os
 import cv2
-import matplotlib.pyplot as plt
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 class QueryVisualizer:
@@ -60,8 +61,3 @@ class QueryVisualizer:
             f'Query Results for: {query_name}', fontsize=12, fontweight='bold')
         plt.tight_layout()
         plt.show()
-
-
-if __name__ == "__main__":
-    visualizer = QueryVisualizer()
-    visualizer.visualize('Data/Queries/Grupo5_queries/example.jpg')

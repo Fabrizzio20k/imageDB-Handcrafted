@@ -5,16 +5,16 @@ from pathlib import Path
 from tqdm import tqdm
 from Indexer.image_similarity_index import ImageSimilarityIndex
 from Descriptors.descriptor_orchestrator import DescriptorOrchestrator
-import sys
 
 
 class QueryProcessor:
-    def __init__(self, index_path, metadata_path, descriptor_orchestrator):
+    def __init__(self, index_path: str, metadata_path: str, descriptor_orchestrator: DescriptorOrchestrator, top_k: int = 10):
         self.indexer = ImageSimilarityIndex()
         self.indexer.load_index(index_path, metadata_path)
         self.descriptor_orchestrator: DescriptorOrchestrator = descriptor_orchestrator
+        self.top_k = top_k
 
-    def process_queries(self, queries_folder, output_folder='Data/Results', k=10):
+    def process_queries(self, queries_folder, output_folder='Data/Results'):
         Path(output_folder).mkdir(parents=True, exist_ok=True)
 
         queries_path = Path(queries_folder)
@@ -48,7 +48,7 @@ class QueryProcessor:
                 features = self.descriptor_orchestrator.descriptor.extract(
                     image)
 
-            search_results = self.indexer.search(features, k=k)
+            search_results = self.indexer.search(features, k=self.top_k)
 
             row_data = {'query': query_name}
             for i, result in enumerate(search_results, 1):
@@ -67,16 +67,3 @@ class QueryProcessor:
         print(f"  - Results saved to: {output_file}")
 
         return output_file
-
-
-if __name__ == "__main__":
-
-    descriptor = DescriptorOrchestrator(descriptor_type='hog')
-
-    processor = QueryProcessor(
-        index_path='../Data/Indexed_feature_vectors/L2_index.faiss',
-        metadata_path='../Data/Indexed_feature_vectors/index_metadata.npz',
-        descriptor_orchestrator=descriptor
-    )
-
-    processor.process_queries('../Data/Queries/Grupo5_queries')
