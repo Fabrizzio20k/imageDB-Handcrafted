@@ -181,3 +181,5 @@ data/*
 
 # Extra: ejemplo de dataset como caltech-101
 caltech-101/
+
+Data/
