@@ -106,26 +106,6 @@ class BatchProcessor:
         return features_batch, labels_batch, filenames_batch
 
 
-class ResultSaver:
-    @staticmethod
-    def save_to_pickle(features: np.ndarray, labels: List[str],
-                       filenames: List[str], output_path: str,
-                       descriptor_type: DescriptorType) -> str:
-        Path(output_path).mkdir(parents=True, exist_ok=True)
-
-        data = {
-            'features': features,
-            'labels': labels,
-            'filenames': filenames
-        }
-
-        output_file = os.path.join(
-            output_path, f'{descriptor_type.value}_features.pkl')
-        pd.to_pickle(data, output_file)
-
-        return output_file
-
-
 class DescriptorOrchestrator:
     def __init__(self, descriptor_type: DescriptorType, caltech_path: str, output_path: str):
         self.descriptor_type = descriptor_type
@@ -157,9 +137,29 @@ class DescriptorOrchestrator:
 
         return np.array(all_features), all_labels, all_filenames
 
-    def extract_features(self, batch_size: int = 32, n_workers: Optional[int] = None):
+    def extract_features(self, batch_size: int = 32, n_workers: Optional[int] = None, force: bool = False):
         if n_workers is None:
             n_workers = min(cpu_count() - 1, 8)
+
+        output_file = os.path.join(
+            self.output_path, f'{self.descriptor_type.value}_features.pkl')
+
+        if os.path.exists(output_file) and not force:
+            print(f"\nFeatures file already exists: {output_file}")
+
+            try:
+                data = pd.read_pickle(output_file)
+                if 'features' in data and 'labels' in data and 'filenames' in data:
+                    print(f"  - Descriptor type: {self.descriptor_type.value}")
+                    print(
+                        f"  - Feature dimension: {data['features'].shape[1]}")
+                    print(f"  - Total vectors: {data['features'].shape[0]}")
+                    print("Use force=True to re-extract features.")
+                    return output_file
+                else:
+                    print("  - File exists but format is invalid. Re-extracting...")
+            except Exception as e:
+                print(f"  - Error reading file: {e}. Re-extracting...")
 
         all_image_paths = ImageLoader.collect_image_paths(self.caltech_path)
         batches = self._create_batches(all_image_paths, batch_size)
@@ -168,10 +168,15 @@ class DescriptorOrchestrator:
             batches, n_workers
         )
 
-        output_file = ResultSaver.save_to_pickle(
-            features_array, all_labels, all_filenames,
-            self.output_path, self.descriptor_type
-        )
+        Path(self.output_path).mkdir(parents=True, exist_ok=True)
+
+        data = {
+            'features': features_array,
+            'labels': all_labels,
+            'filenames': all_filenames
+        }
+
+        pd.to_pickle(data, output_file)
 
         self._print_summary(features_array, output_file)
 

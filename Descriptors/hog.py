@@ -77,7 +77,7 @@ class HOG:
 
         return np.concatenate(normalized_blocks)
 
-    def compute_hog(self, image_path: str | np.ndarray, target_size=(128, 128)) -> np.ndarray:
+    def compute_hog(self, image_path: str | np.ndarray, target_size=(128, 64)) -> np.ndarray:
         if isinstance(image_path, str):
             image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
             if image is None:
