@@ -165,11 +165,16 @@ class ImageSimilarityIndex:
         results = []
         for dist, idx in zip(distances[0], indices[0]):
             if idx >= 0:
+                if self.index_type in [IndexType.COSINE, IndexType.IP]:
+                    score = float(dist)
+                else:
+                    score = float(1.0 / (1.0 + dist))
+
                 results.append({
                     'filename': self.filenames[idx],
                     'label': self.labels[idx],
                     'distance': float(dist),
-                    'score': float(1.0 / (1.0 + dist))
+                    'score': score
                 })
 
         return results
