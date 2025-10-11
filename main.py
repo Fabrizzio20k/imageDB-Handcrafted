@@ -16,7 +16,7 @@ if __name__ == "__main__":
     queries_folder = Path('Data/Queries')
     results_output_path = Path('Data/Results')
 
-    descriptor_type = DescriptorType.MIXTURE
+    descriptor_type = DescriptorType.HOG
     index_type = IndexType.COSINE
 
     print("=" * 80)
